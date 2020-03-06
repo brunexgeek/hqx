@@ -171,7 +171,7 @@ uint32_t *HQ3x::resize(
 				case 161:
 				case 37:
 				case 165:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_5_2_1_1
 					MIX_10_4_3_3_1
@@ -199,7 +199,7 @@ uint32_t *HQ3x::resize(
 				case 17:
 				case 48:
 				case 49:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -213,7 +213,7 @@ uint32_t *HQ3x::resize(
 				case 65:
 				case 68:
 				case 69:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_5_2_1_1
 					MIX_10_4_3_3_1
@@ -269,7 +269,7 @@ uint32_t *HQ3x::resize(
 				case 21:
 				case 52:
 				case 53:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_3_1
 					MIX_10_4_3_3_1
@@ -283,7 +283,7 @@ uint32_t *HQ3x::resize(
 				case 145:
 				case 176:
 				case 177:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -297,7 +297,7 @@ uint32_t *HQ3x::resize(
 				case 193:
 				case 196:
 				case 197:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_5_2_1_1
 					MIX_10_4_3_3_1
@@ -311,7 +311,7 @@ uint32_t *HQ3x::resize(
 				case 97:
 				case 100:
 				case 101:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_5_2_1_1
 					MIX_10_4_3_3_1
@@ -372,7 +372,7 @@ uint32_t *HQ3x::resize(
 					break;
 				case 80:
 				case 81:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -471,7 +471,7 @@ uint32_t *HQ3x::resize(
 				case 148:
 				case 149:
 				case 180:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_3_1
 					MIX_10_4_3_3_1
@@ -484,7 +484,7 @@ uint32_t *HQ3x::resize(
 				case 224:
 				case 228:
 				case 225:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_5_2_1_1
 					MIX_10_4_3_3_1
@@ -530,7 +530,7 @@ uint32_t *HQ3x::resize(
 					break;
 				case 208:
 				case 209:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -602,7 +602,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_01_1_4_3_1
 						MIX_02_1_5_1_1
 						MIX_12_4_5_3_1
@@ -651,7 +651,7 @@ uint32_t *HQ3x::resize(
 						MIX_21_4_7_3_1
 						MIX_22_5_7_1_1
 					}
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_10_4_3_3_1
 					MIX_11_4
@@ -673,7 +673,7 @@ uint32_t *HQ3x::resize(
 						MIX_21_7_4_3_1
 						MIX_22_5_7_1_1
 					}
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -712,7 +712,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_10_3_4_3_1
 						MIX_20_7_3_1_1
 						MIX_21_4_7_3_1
@@ -1266,7 +1266,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -1341,7 +1341,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_2_3_1
@@ -1366,7 +1366,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -1391,7 +1391,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -1466,7 +1466,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -1509,7 +1509,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_01_1_4_3_1
 						MIX_02_1_5_1_1
 						MIX_12_4_5_3_1
@@ -1558,7 +1558,7 @@ uint32_t *HQ3x::resize(
 						MIX_21_4_7_3_1
 						MIX_22_5_7_1_1
 					}
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_10_4_3_3_1
 					MIX_11_4
@@ -1580,7 +1580,7 @@ uint32_t *HQ3x::resize(
 						MIX_21_7_4_3_1
 						MIX_22_5_7_1_1
 					}
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_2_3_1
 					MIX_10_4_3_3_1
@@ -1619,7 +1619,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_10_3_4_3_1
 						MIX_20_7_3_1_1
 						MIX_21_4_7_3_1
@@ -1956,7 +1956,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
 					{
@@ -1983,7 +1983,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_2_3_1
@@ -2145,7 +2145,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -2186,7 +2186,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
 					{
@@ -2227,7 +2227,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -2336,7 +2336,7 @@ uint32_t *HQ3x::resize(
 					MIX_22_4_5_7_2_1_1
 					break;
 				case 181:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_3_1
 					MIX_10_4_3_3_1
@@ -2353,7 +2353,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -2428,7 +2428,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -2473,7 +2473,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -2505,7 +2505,7 @@ uint32_t *HQ3x::resize(
 					break;
 				case 117:
 				case 116:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_3_1
 					MIX_10_4_3_3_1
@@ -2612,7 +2612,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_10_3_4_3_1
 						MIX_20_7_3_1_1
 						MIX_21_4_7_3_1
@@ -2759,7 +2759,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_01_1_4_3_1
 						MIX_02_1_5_1_1
 						MIX_12_4_5_3_1
@@ -2797,7 +2797,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -2829,7 +2829,7 @@ uint32_t *HQ3x::resize(
 					break;
 				case 245:
 				case 244:
-					MIX_00_MIX_00_4_0_3_1
+					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_02_4_1_3_1
 					MIX_10_4_3_3_1
@@ -3039,7 +3039,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -3065,7 +3065,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -3266,7 +3266,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					MIX_02_4_5_3_1
@@ -3293,7 +3293,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 						MIX_01_4_1_7_1
 						MIX_10_4_3_7_1
 					}
@@ -3327,7 +3327,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
@@ -3413,7 +3413,7 @@ uint32_t *HQ3x::resize(
 					}
 					else
 					{
-						MIX_00_MIX_00_4_0_3_1
+						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4
 					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
