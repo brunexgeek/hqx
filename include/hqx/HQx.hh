@@ -44,7 +44,7 @@
 
 
 #define MIX_00_4				*output = w[4];
-#define MIX_00_4_0_3_1	*output = HQX_MIX_2(w[4],w[0],3U,1U);
+#define MIX_00_4_0_3_1			*output = HQX_MIX_2(w[4],w[0],3U,1U);
 #define MIX_00_4_3_3_1			*output = HQX_MIX_2(w[4],w[3],3U,1U);
 #define MIX_00_4_1_3_1			*output = HQX_MIX_2(w[4],w[1],3U,1U);
 #define MIX_00_3_1_1_1			*output = HQX_MIX_2(w[3],w[1],1U,1U);
@@ -56,7 +56,7 @@
 #define MIX_00_4_3_1_5_2_1		*output = HQX_MIX_3(w[4],w[3],w[1],5U,2U,1U);
 #define MIX_00_4_3_1_6_1_1		*output = HQX_MIX_3(w[4],w[3],w[1],6U,1U,1U);
 #define MIX_00_4_3_1_2_3_3		*output = HQX_MIX_3(w[4],w[3],w[1],2U,3U,3U);
-#define MIX_00_4_0_3_10	*output = HQX_MIX_3(w[4],w[3],w[1],14U,1U,1U);
+#define MIX_00_4_3_1_e_1_1		*output = HQX_MIX_3(w[4],w[3],w[1],14U,1U,1U);
 
 #define MIX_01_4			*(output + 1) = w[4];
 #define MIX_01_4_2_3_1		*(output + 1) = HQX_MIX_2(w[4],w[2],3U,1U);
@@ -71,7 +71,7 @@
 #define MIX_01_4_1_5_5_2_1	*(output + 1) = HQX_MIX_3(w[4],w[1],w[5],5U,2U,1U);
 #define MIX_01_4_1_5_6_1_1	*(output + 1) = HQX_MIX_3(w[4],w[1],w[5],6U,1U,1U);
 #define MIX_01_4_1_5_2_3_3	*(output + 1) = HQX_MIX_3(w[4],w[1],w[5],2U,3U,3U);
-#define MIX_01_4_2_3_10		*(output + 1) = HQX_MIX_3(w[4],w[1],w[5],14U,1U,1U);
+#define MIX_01_4_1_5_e_1_1	*(output + 1) = HQX_MIX_3(w[4],w[1],w[5],14U,1U,1U);
 
 #define MIX_02_4			*(output + 2) = w[4];
 #define MIX_02_4_2_3_1		*(output + 2) = HQX_MIX_2(w[4],w[2],3U,1U);
@@ -92,7 +92,7 @@
 #define MIX_10_4_7_3_5_2_1	*(output + lineSize) = HQX_MIX_3(w[4],w[7],w[3],5U,2U,1U);
 #define MIX_10_4_7_3_6_1_1	*(output + lineSize) = HQX_MIX_3(w[4],w[7],w[3],6U,1U,1U);
 #define MIX_10_4_7_3_2_3_3	*(output + lineSize) = HQX_MIX_3(w[4],w[7],w[3],2U,3U,3U);
-#define MIX_10_4_6_3_10		*(output + lineSize) = HQX_MIX_3(w[4],w[7],w[3],14U,1U,1U);
+#define MIX_10_4_7_3_e_1_1	*(output + lineSize) = HQX_MIX_3(w[4],w[7],w[3],14U,1U,1U);
 #define MIX_10_4_3_7_1  	*(output + lineSize) = HQX_MIX_2(w[4],w[3],7U,1U);
 #define MIX_10_3_4_3_1  	*(output + lineSize) = HQX_MIX_2(w[3],w[4],3U,1U);
 
@@ -107,7 +107,7 @@
 #define MIX_11_4_5_7_5_2_1	*(output + lineSize + 1) = HQX_MIX_3(w[4],w[5],w[7],5U,2U,1U);
 #define MIX_11_4_5_7_6_1_1	*(output + lineSize + 1) = HQX_MIX_3(w[4],w[5],w[7],6U,1U,1U);
 #define MIX_11_4_5_7_2_3_3	*(output + lineSize + 1) = HQX_MIX_3(w[4],w[5],w[7],2U,3U,3U);
-#define MIX_11_4_8_3_10		*(output + lineSize + 1) = HQX_MIX_3(w[4],w[5],w[7],14U,1U,1U);
+#define MIX_11_4_5_7_e_1_1	*(output + lineSize + 1) = HQX_MIX_3(w[4],w[5],w[7],14U,1U,1U);
 
 #define MIX_12_4			*(output + lineSize + 2) = w[4];
 #define MIX_12_4_5_3_1		*(output + lineSize + 2) = HQX_MIX_2(w[4],w[5],3U,1U);
