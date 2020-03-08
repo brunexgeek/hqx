@@ -44,7 +44,7 @@
 
 
 #define MIX_00_4				*output = w[4];
-#define MIX_00_MIX_00_4_0_3_1	*output = HQX_MIX_2(w[4],w[0],3U,1U);
+#define MIX_00_4_0_3_1	*output = HQX_MIX_2(w[4],w[0],3U,1U);
 #define MIX_00_4_3_3_1			*output = HQX_MIX_2(w[4],w[3],3U,1U);
 #define MIX_00_4_1_3_1			*output = HQX_MIX_2(w[4],w[1],3U,1U);
 #define MIX_00_3_1_1_1			*output = HQX_MIX_2(w[3],w[1],1U,1U);
@@ -56,7 +56,7 @@
 #define MIX_00_4_3_1_5_2_1		*output = HQX_MIX_3(w[4],w[3],w[1],5U,2U,1U);
 #define MIX_00_4_3_1_6_1_1		*output = HQX_MIX_3(w[4],w[3],w[1],6U,1U,1U);
 #define MIX_00_4_3_1_2_3_3		*output = HQX_MIX_3(w[4],w[3],w[1],2U,3U,3U);
-#define MIX_00_MIX_00_4_0_3_10	*output = HQX_MIX_3(w[4],w[3],w[1],14U,1U,1U);
+#define MIX_00_4_0_3_10	*output = HQX_MIX_3(w[4],w[3],w[1],14U,1U,1U);
 
 #define MIX_01_4			*(output + 1) = w[4];
 #define MIX_01_4_2_3_1		*(output + 1) = HQX_MIX_2(w[4],w[2],3U,1U);
