@@ -71,20 +71,16 @@ bool HQx::isDifferent(
 
 	uint32_t value;
 
-	value = ((color1 & YMASK) - (color2 & YMASK));
-	value = (value ^ (value >> 31)) - (value >> 31);
+	value = abs(int(color1 & YMASK) - int(color2 & YMASK));
 	if (value > trY) return true;
 
-	value = ((color1 & UMASK) - (color2 & UMASK));
-	value = (value ^ (value >> 31)) - (value >> 31);
+	value = abs(int(color1 & UMASK) - int(color2 & UMASK));
 	if (value > trU) return true;
 
-	value = ((color1 & VMASK) - (color2 & VMASK));
-	value = (value ^ (value >> 31)) - (value >> 31);
+	value = abs(int(color1 & VMASK) - int(color2 & VMASK));
 	if (value > trV) return true;
 
-	value = ((color1 & AMASK) - (color2 & AMASK));
-	value = (value ^ (value >> 31)) - (value >> 31);
+	value = abs(int(color1 & AMASK) - int(color2 & AMASK));
 	if (value > trA) return true;
 
 	return false;
@@ -107,10 +103,10 @@ bool HQx::isDifferent(
 	uint32_t yuv1 = ARGBtoAYUV(color1);
 	uint32_t yuv2 = ARGBtoAYUV(color2);
 
-	return (uint32_t) abs((yuv1 & YMASK) - (yuv2 & YMASK)) > trY ||
-		   (uint32_t) abs((yuv1 & UMASK) - (yuv2 & UMASK)) > trU ||
-		   (uint32_t) abs((yuv1 & VMASK) - (yuv2 & VMASK)) > trV ||
-		   (uint32_t) abs((yuv1 & AMASK) - (yuv2 & AMASK)) > trA;
+	return abs(int(yuv1 & YMASK) - int(yuv2 & YMASK)) > trY ||
+		   abs(int(yuv1 & UMASK) - int(yuv2 & UMASK)) > trU ||
+		   abs(int(yuv1 & VMASK) - int(yuv2 & VMASK)) > trV ||
+		   abs(int(yuv1 & AMASK) - int(yuv2 & AMASK)) > trA;
 }
 
 #endif
