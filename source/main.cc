@@ -73,15 +73,18 @@ int main_saveBitmap(
 	ofstream output(fileName.c_str(), std::ios_base::binary);
 	if (!output.good()) return -1;
 
-	suffix = ((width + 3) & ~0x03) - width;
-
+	// suffix = ((width + 3) & ~0x03) - width;       // original
+	// suffix = ((3*width + 3) & ~0x03) - 3*width;   // corrected
+	suffix = ( 4 - (3*width)%4 )%4;                  // alternative	
+	
 	dh.biSize          = sizeof(DibHeader);
 	dh.biWidth         = width;
 	dh.biHeight        = height;
 	dh.biPlanes        = 1;
 	dh.biBitCount      = 24;
 	dh.biCompression   = 0;
-	dh.biSizeImage     = (uint16_t) ( (width*3+suffix)*height );
+	// dh.biSizeImage  = (uint16_t) ( (width*3+suffix)*height );
+	dh.biSizeImage     = (width*3+suffix)*height;    // no cast
 	dh.biXPelsPerMeter = 0x2E23;
 	dh.biYPelsPerMeter = dh.biXPelsPerMeter;
 	dh.biClrUsed       = 0;
@@ -141,7 +144,10 @@ int main_loadBitmap(
 	height = dh.biHeight;
 	if (dh.biBitCount != 24) return -1;
 
-	suffix = ((width + 3) & ~0x03) - width;
+	// suffix = ((width + 3) & ~0x03) - width;       // original
+	// suffix = ((3*width + 3) & ~0x03) - 3*width;   // corrected
+	suffix = ( 4 - (3*width)%4 )%4;                  // alternative
+	
 	ptr = data = new uint32_t[width * height]();
 	ptr += width * height;
 	for (uint32_t i = 0; i < height; i++)
