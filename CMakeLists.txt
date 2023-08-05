@@ -8,9 +8,10 @@ include_directories(
 file(GLOB HQX_SOURCES
 	"source/HQx.cc"
 	"source/HQ2x.cc"
-	"source/HQ3x.cc")
+	"source/HQ3x.cc"
+    "source/bitmap.cc")
 
-add_library(hqx ${HQX_SOURCES} "include/Bitmap.h")
+add_library(hqx ${HQX_SOURCES})
 set_target_properties(hqx PROPERTIES
     OUTPUT_NAME "hqx"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
@@ -18,7 +19,7 @@ set_target_properties(hqx PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     PREFIX "lib" )
 
-add_executable(test "source/main.cc" "include/Bitmap.h")
+add_executable(test "source/main.cc")
 target_link_libraries(test hqx)
 set_target_properties(test PROPERTIES
     OUTPUT_NAME "test"
