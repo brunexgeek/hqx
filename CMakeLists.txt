@@ -8,7 +8,8 @@ include_directories(
 file(GLOB HQX_SOURCES
 	"source/HQx.cc"
 	"source/HQ2x.cc"
-	"source/HQ3x.cc")
+	"source/HQ3x.cc"
+    "source/bitmap.cc")
 
 add_library(hqx ${HQX_SOURCES})
 set_target_properties(hqx PROPERTIES
