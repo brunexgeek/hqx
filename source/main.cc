@@ -52,13 +52,53 @@ struct DibHeader
 	uint32_t biClrImportant;
 };
 
+typedef struct
+{
+	int32_t ciexyzX;
+	int32_t ciexyzY;
+	int32_t ciexyzZ;
+} DibCIEXYZ;
+
+typedef struct 
+{
+	DibCIEXYZ  ciexyzRed;
+	DibCIEXYZ  ciexyzGreen;
+	DibCIEXYZ  ciexyzBlue;
+} DibCIEXYZTRIPLE;
+
+typedef struct {
+	uint32_t        bV5Size;
+	int32_t         bV5Width;
+	int32_t         bV5Height;
+	uint16_t        bV5Planes;
+	uint16_t        bV5BitCount;
+	uint32_t        bV5Compression;
+	uint32_t        bV5SizeImage;
+	int32_t         bV5XPelsPerMeter;
+	int32_t         bV5YPelsPerMeter;
+	uint32_t        bV5ClrUsed;
+	uint32_t        bV5ClrImportant;
+	uint32_t        bV5RedMask;
+	uint32_t        bV5GreenMask;
+	uint32_t        bV5BlueMask;
+	uint32_t        bV5AlphaMask;
+	uint32_t        bV5CSType;
+	DibCIEXYZTRIPLE bV5Endpoints;
+	uint32_t        bV5GammaRed;
+	uint32_t        bV5GammaGreen;
+	uint32_t        bV5GammaBlue;
+	uint32_t        bV5Intent;
+	uint32_t        bV5ProfileData;
+	uint32_t        bV5ProfileSize;
+	uint32_t        bV5Reserved;
+} DibHeaderV5;
 #pragma pack(pop)
 
 
 /**
  * @brief Saves an Windows Bitmap image (24 BPP).
  */
-int main_saveBitmap(
+int main_saveBitmap24(
 	const uint32_t *data,
 	uint32_t width,
 	uint32_t height,
@@ -111,11 +151,63 @@ int main_saveBitmap(
   return 0;
 }
 
+int main_saveBitmap32(
+	const uint32_t* data,
+	uint32_t width,
+	uint32_t height,
+	const string& fileName)
+{
+	BitmapHeader bh;
+	DibHeaderV5 dh = { 0 };
+	uint16_t suffix;
+	uint32_t zero = 0;
+	const uint32_t* ptr;
+
+	ofstream output(fileName.c_str(), std::ios_base::binary);
+	if (!output.good()) return -1;
+
+	dh.bV5Size = sizeof(DibHeaderV5);
+	dh.bV5Width = width;
+	dh.bV5Height = height;
+	dh.bV5Planes = 1;
+	dh.bV5BitCount = 32;
+	dh.bV5Compression = 3;
+	dh.bV5SizeImage = 0;
+	dh.bV5XPelsPerMeter = 0x2E23;
+	dh.bV5YPelsPerMeter = dh.bV5XPelsPerMeter;
+	dh.bV5ClrUsed = 0;
+	dh.bV5ClrImportant = 0;
+	dh.bV5RedMask = 0x00ff0000;
+	dh.bV5GreenMask = 0x0000ff00;
+	dh.bV5BlueMask = 0x000000ff;
+	dh.bV5AlphaMask = 0xff000000;
+	dh.bV5CSType = 0x57696e20;// 'Win '
+
+	bh.bfType = 0x4D42; // 'BM'
+	bh.bfSize = width * height * 4 + sizeof(DibHeaderV5) + sizeof(BitmapHeader);
+	bh.bfRes1 = 0;
+	bh.bfOffBits = sizeof(DibHeaderV5) + sizeof(BitmapHeader);
+	output.write((char*)&bh, sizeof(BitmapHeader));
+	output.write((char*)&dh, sizeof(DibHeaderV5));
+
+	ptr = data + (width * height);
+	for (uint32_t i = 0; i < height; i++)
+	{
+		ptr -= width;
+
+		for (uint32_t j = 0; j < width; ++j)
+			output.write((char*)(ptr + j), 4);
+	}
+
+	output.close();
+
+	return 0;
+}
 
 /**
  * @brief Loads an Windows Bitmap image (24 BPP).
  */
-int main_loadBitmap(
+int main_loadBitmap24(
 	const string &fileName,
 	uint32_t *&data,
 	uint16_t &width,
@@ -162,6 +254,50 @@ int main_loadBitmap(
 	return 0;
 }
 
+int main_loadBitmap32(
+	const string& fileName,
+	uint32_t*& data,
+	uint16_t& width,
+	uint16_t& height)
+{
+	BitmapHeader bh;
+	DibHeaderV5 dh;
+	uint16_t  suffix;
+	uint32_t zero = 0;
+	uint32_t* ptr;
+	uint16_t bits;
+
+	ifstream input(fileName.c_str(), std::ios_base::binary);
+	if (!input.good()) return -1;
+
+	input.read((char*)&bh, 14);
+	if (bh.bfType != 0x4D42) return -1;
+	input.read((char*)&dh.bV5Size, sizeof(uint32_t));
+	if (dh.bV5Size != sizeof(DibHeaderV5)) return -1;
+
+	input.read((char*)&dh.bV5Width, sizeof(DibHeaderV5) - sizeof(uint32_t));
+	width = dh.bV5Width;
+	height = dh.bV5Height;
+	if (dh.bV5BitCount != 32) return -1;
+	
+	input.seekg(bh.bfOffBits, std::ios_base::_Seekbeg);
+	
+	ptr = data = new uint32_t[width * height]();
+	ptr += width * height;
+	for (uint32_t i = 0; i < height; i++)
+	{
+		ptr -= width;
+
+		for (uint32_t j = 0; j < width; ++j)
+		{
+			input.read((char*)(ptr + j), 4);
+		}
+	}
+
+	input.close();
+	return 0;
+}
+
 
 int main(int argc, char **argv )
 {
@@ -173,7 +309,7 @@ int main(int argc, char **argv )
 	// loads the input image
 	uint16_t width, height;
 	uint32_t *image = NULL;
-	if ( main_loadBitmap(argv[1], image, width, height) != 0) return 1;
+	if ( main_loadBitmap32(argv[1], image, width, height) != 0) return 1;
 	std::cout << "Resizing '" << argv[1] << "' [" << width << "x" << height << "] by " <<
 		factor << 'x' << std::endl;
 
@@ -194,7 +330,7 @@ int main(int argc, char **argv )
 	std::cout << "Processing time: " << t / (CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 	// saves the resized image
-	if ( main_saveBitmap(output, width * factor, height * factor, "output.bmp") != 0 ) return 1;
+	if ( main_saveBitmap32(output, width * factor, height * factor, "output.bmp") != 0 ) return 1;
 
 	delete[] image;
 	delete[] output;
