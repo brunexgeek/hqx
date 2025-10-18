@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Bruno Ribeiro
+ * Copyright 2016-205 Bruno Costa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,40 @@
  * limitations under the License.
  */
 
-#include <hqx/HQ2x.hh>
-#include <iostream>
+#include <hqx/hqx.h>
+#include <stddef.h>
+#include "macros.h"
+#include "util.h"
 
-
-
-HQ2x::HQ2x()
-{
-	// nothing to do
-}
-
-
-HQ2x::~HQ2x()
-{
-	// nothing to do
-}
-
-
-uint32_t *HQ2x::resize(
+uint32_t *hqx_scale2x(
 	const uint32_t *image,
 	uint32_t width,
 	uint32_t height,
 	uint32_t *output,
-	uint32_t trY,
-	uint32_t trU,
-	uint32_t trV,
-	uint32_t trA,
-	bool wrapX,
-	bool wrapY ) const
+	const struct hqx_parameters *params )
 {
-	int lineSize = width * 2;
+	struct hqx_parameters params_ = {
+		.trY = 0x40,
+		.trU = 0x07,
+		.trV = 0x06,
+		.trA = 0x50,
+		.wrapX = false,
+		.wrapY = false,
+	};
+	if (params == NULL)
+		params = &params_;
+
+	uint32_t lineSize = width * 2;
 
 	int previous, next;
 	uint32_t w[9];
 
-	trY <<= 16;
-	trU <<= 8;
-	trA <<= 24;
+	uint32_t trA = params->trA << 24;
+	uint32_t trY = params->trY << 16;
+	uint32_t trU = params->trU << 8;
+	uint32_t trV = params->trV;
+	bool wrapX = params->wrapX;
+	bool wrapY = params->wrapY;
 
 	// iterates between the lines
 	for (uint32_t row = 0; row < height; row++)
@@ -72,20 +69,20 @@ uint32_t *HQ2x::resize(
 
 		// adjusts the previous and next line pointers
 		if (row > 0)
-			previous = -width;
+			previous = - (int) width;
 		else
 		{
 			if (wrapY)
-				previous = width * (height - 1);
+				previous = (int) width * ((int) height - 1);
 			else
 				previous = 0;
 		}
 		if (row < height - 1)
-			next = width;
+			next = (int) width;
 		else
 		{
 			if (wrapY)
-				next = -(width * (height - 1));
+				next = -((int) width * ((int) height - 1));
 			else
 				next = 0;
 		}
@@ -150,7 +147,7 @@ uint32_t *HQ2x::resize(
 				if (k == 4) continue;
 
 				if (w[k] != w[4])
-					if (HQx::isDifferent(w[4], w[k], trY, trU, trV, trA)) pattern |= flag;
+					if (is_different(w[4], w[k], trY, trU, trV, trA)) pattern |= flag;
 				flag <<= 1;
 			}
 
@@ -288,7 +285,7 @@ uint32_t *HQ2x::resize(
 				case 18:
 				case 50:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -304,7 +301,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_2_1_2_1_1
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -317,7 +314,7 @@ uint32_t *HQ2x::resize(
 				case 76:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -329,7 +326,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 10:
 				case 138:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -388,7 +385,7 @@ uint32_t *HQ2x::resize(
 				case 22:
 				case 54:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -404,7 +401,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_2_1_2_1_1
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -417,7 +414,7 @@ uint32_t *HQ2x::resize(
 				case 108:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -429,7 +426,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 11:
 				case 139:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -443,7 +440,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 19:
 				case 51:
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_00_4_3_3_1
 					MIX_01_4_2_3_1
@@ -459,7 +456,7 @@ uint32_t *HQ2x::resize(
 				case 146:
 				case 178:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_01_4_2_3_1
 					MIX_11_4_7_3_1
@@ -474,7 +471,7 @@ uint32_t *HQ2x::resize(
 				case 84:
 				case 85:
 					MIX_00_4_3_1_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_01_4_1_3_1
 					MIX_11_4_8_3_1
@@ -490,7 +487,7 @@ uint32_t *HQ2x::resize(
 				case 113:
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_10_4_3_3_1
 					MIX_11_4_8_3_1
@@ -505,7 +502,7 @@ uint32_t *HQ2x::resize(
 				case 204:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_10_4_6_3_1
 					MIX_11_4_5_3_1
@@ -518,7 +515,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 73:
 				case 77:
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_00_4_1_3_1
 					MIX_10_4_6_3_1
@@ -533,7 +530,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 42:
 				case 170:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4_0_3_1
 					MIX_10_4_7_3_1
@@ -548,7 +545,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 14:
 				case 142:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4_0_3_1
 					MIX_01_4_5_3_1
@@ -611,7 +608,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 26:
 				case 31:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -619,7 +616,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -633,7 +630,7 @@ uint32_t *HQ2x::resize(
 				case 82:
 				case 214:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -642,7 +639,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_2_1_1
 					}
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -655,7 +652,7 @@ uint32_t *HQ2x::resize(
 				case 248:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -663,7 +660,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -674,7 +671,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 74:
 				case 107:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -683,7 +680,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4_2_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -694,7 +691,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_5_2_1_1
 					break;
 				case 27:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -708,7 +705,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 86:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -723,7 +720,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_2_1_2_1_1
 					MIX_10_4_6_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -735,7 +732,7 @@ uint32_t *HQ2x::resize(
 				case 106:
 					MIX_00_4_0_3_1
 					MIX_01_4_2_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -747,7 +744,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 30:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -762,7 +759,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_0_3_2_1_1
 					MIX_01_4_2_3_1
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -774,7 +771,7 @@ uint32_t *HQ2x::resize(
 				case 120:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -785,7 +782,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_3_1
 					break;
 				case 75:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -870,7 +867,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_7_3_1
 					break;
 				case 58:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -878,7 +875,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -891,7 +888,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 83:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -900,7 +897,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_6_1_1
 					}
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -912,7 +909,7 @@ uint32_t *HQ2x::resize(
 				case 92:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -920,7 +917,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -930,7 +927,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 202:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -939,7 +936,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_6_1_1
 					}
 					MIX_01_4_2_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -950,7 +947,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_5_3_1
 					break;
 				case 78:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -959,7 +956,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_6_1_1
 					}
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -970,7 +967,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_5_2_1_1
 					break;
 				case 154:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -978,7 +975,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -991,7 +988,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 114:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1000,7 +997,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_6_1_1
 					}
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1012,7 +1009,7 @@ uint32_t *HQ2x::resize(
 				case 89:
 					MIX_00_4_1_3_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1020,7 +1017,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1030,7 +1027,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 90:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1038,7 +1035,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1046,7 +1043,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_6_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1054,7 +1051,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1065,7 +1062,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 55:
 				case 23:
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_00_4_3_3_1
 					MIX_01_4
@@ -1081,7 +1078,7 @@ uint32_t *HQ2x::resize(
 				case 182:
 				case 150:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_01_4
 					MIX_11_4_7_3_1
@@ -1096,7 +1093,7 @@ uint32_t *HQ2x::resize(
 				case 213:
 				case 212:
 					MIX_00_4_3_1_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_01_4_1_3_1
 					MIX_11_4
@@ -1112,7 +1109,7 @@ uint32_t *HQ2x::resize(
 				case 240:
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_10_4_3_3_1
 					MIX_11_4
@@ -1127,7 +1124,7 @@ uint32_t *HQ2x::resize(
 				case 232:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_10_4
 					MIX_11_4_5_3_1
@@ -1140,7 +1137,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 109:
 				case 105:
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_00_4_1_3_1
 					MIX_10_4
@@ -1155,7 +1152,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 171:
 				case 43:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4
 					MIX_10_4_7_3_1
@@ -1170,7 +1167,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 143:
 				case 15:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4
 					MIX_01_4_5_3_1
@@ -1186,7 +1183,7 @@ uint32_t *HQ2x::resize(
 				case 124:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1197,7 +1194,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_3_1
 					break;
 				case 203:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1211,7 +1208,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 62:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1226,7 +1223,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_3_3_1
 					MIX_01_4_2_3_1
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1237,7 +1234,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 118:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1252,7 +1249,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_1_3_1
 					MIX_01_4_2_1_2_1_1
 					MIX_10_4_6_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1264,7 +1261,7 @@ uint32_t *HQ2x::resize(
 				case 110:
 					MIX_00_4_0_3_1
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1275,7 +1272,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_5_2_1_1
 					break;
 				case 155:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1338,7 +1335,7 @@ uint32_t *HQ2x::resize(
 				case 220:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1346,7 +1343,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1356,7 +1353,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 158:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1364,7 +1361,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1376,7 +1373,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_7_3_1
 					break;
 				case 234:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1385,7 +1382,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_6_1_1
 					}
 					MIX_01_4_2_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1397,7 +1394,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 242:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1406,7 +1403,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_6_1_1
 					}
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1416,7 +1413,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 59:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1424,7 +1421,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1438,7 +1435,7 @@ uint32_t *HQ2x::resize(
 				case 121:
 					MIX_00_4_1_3_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1446,7 +1443,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1457,7 +1454,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 87:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1466,7 +1463,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_2_1_1
 					}
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1476,7 +1473,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 79:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1485,7 +1482,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1496,7 +1493,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_5_2_1_1
 					break;
 				case 122:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1504,7 +1501,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1512,7 +1509,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_6_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1520,7 +1517,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1530,7 +1527,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 94:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1538,7 +1535,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1546,7 +1543,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_2_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1554,7 +1551,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1564,7 +1561,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 218:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1572,7 +1569,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1580,7 +1577,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_6_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1588,7 +1585,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1598,7 +1595,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 91:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1606,7 +1603,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1614,7 +1611,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_6_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1622,7 +1619,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1656,7 +1653,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_7_3_1
 					break;
 				case 186:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1664,7 +1661,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_6_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1677,7 +1674,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 115:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1686,7 +1683,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_6_1_1
 					}
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1698,7 +1695,7 @@ uint32_t *HQ2x::resize(
 				case 93:
 					MIX_00_4_1_3_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1706,7 +1703,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_6_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1716,7 +1713,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 206:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1725,7 +1722,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_6_1_1
 					}
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1739,7 +1736,7 @@ uint32_t *HQ2x::resize(
 				case 201:
 					MIX_00_4_1_3_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4_6_3_1
 					}
@@ -1751,7 +1748,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 174:
 				case 46:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4_0_3_1
 					}
@@ -1766,7 +1763,7 @@ uint32_t *HQ2x::resize(
 				case 179:
 				case 147:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4_2_3_1
 					}
@@ -1782,7 +1779,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4_8_3_1
 					}
@@ -1805,7 +1802,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 126:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -1813,7 +1810,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_2_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1824,7 +1821,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_3_1
 					break;
 				case 219:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1834,7 +1831,7 @@ uint32_t *HQ2x::resize(
 					}
 					MIX_01_4_2_3_1
 					MIX_10_4_6_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -1844,7 +1841,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 125:
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_00_4_1_3_1
 					MIX_10_4
@@ -1859,7 +1856,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 221:
 					MIX_00_4_1_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_01_4_1_3_1
 					MIX_11_4
@@ -1872,7 +1869,7 @@ uint32_t *HQ2x::resize(
 					MIX_10_4_6_3_1
 					break;
 				case 207:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4
 					MIX_01_4_5_3_1
@@ -1888,7 +1885,7 @@ uint32_t *HQ2x::resize(
 				case 238:
 					MIX_00_4_0_3_1
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 					MIX_10_4
 					MIX_11_4_5_3_1
@@ -1901,7 +1898,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 190:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_01_4
 					MIX_11_4_7_3_1
@@ -1914,7 +1911,7 @@ uint32_t *HQ2x::resize(
 					MIX_10_4_7_3_1
 					break;
 				case 187:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 					MIX_00_4
 					MIX_10_4_7_3_1
@@ -1930,7 +1927,7 @@ uint32_t *HQ2x::resize(
 				case 243:
 					MIX_00_4_3_3_1
 					MIX_01_4_2_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 					MIX_10_4_3_3_1
 					MIX_11_4
@@ -1942,7 +1939,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 119:
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 					MIX_00_4_3_3_1
 					MIX_01_4
@@ -1959,7 +1956,7 @@ uint32_t *HQ2x::resize(
 				case 233:
 					MIX_00_4_1_3_1
 					MIX_01_4_1_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -1971,7 +1968,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 175:
 				case 47:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -1986,7 +1983,7 @@ uint32_t *HQ2x::resize(
 				case 183:
 				case 151:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2002,7 +1999,7 @@ uint32_t *HQ2x::resize(
 					MIX_00_4_3_1_2_1_1
 					MIX_01_4_1_3_1
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2014,7 +2011,7 @@ uint32_t *HQ2x::resize(
 				case 250:
 					MIX_00_4_0_3_1
 					MIX_01_4_2_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2022,7 +2019,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2032,7 +2029,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 123:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2041,7 +2038,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4_2_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2052,7 +2049,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_3_1
 					break;
 				case 95:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2060,7 +2057,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2073,7 +2070,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 222:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2082,7 +2079,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_2_1_1
 					}
 					MIX_10_4_6_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2094,7 +2091,7 @@ uint32_t *HQ2x::resize(
 				case 252:
 					MIX_00_4_0_1_2_1_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2102,7 +2099,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2114,7 +2111,7 @@ uint32_t *HQ2x::resize(
 				case 249:
 					MIX_00_4_1_3_1
 					MIX_01_4_2_1_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2122,7 +2119,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_e_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2132,7 +2129,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 235:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2141,7 +2138,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4_2_5_2_1_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2152,7 +2149,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_5_3_1
 					break;
 				case 111:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2161,7 +2158,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_e_1_1
 					}
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2172,7 +2169,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_5_2_1_1
 					break;
 				case 63:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2180,7 +2177,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_e_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2192,7 +2189,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_7_2_1_1
 					break;
 				case 159:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2200,7 +2197,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2213,7 +2210,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 215:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2222,7 +2219,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_e_1_1
 					}
 					MIX_10_4_6_3_2_1_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2233,7 +2230,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 246:
 					MIX_00_4_0_3_2_1_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2242,7 +2239,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_2_1_1
 					}
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2253,7 +2250,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 254:
 					MIX_00_4_0_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2261,7 +2258,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_2_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2269,7 +2266,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_2_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2281,7 +2278,7 @@ uint32_t *HQ2x::resize(
 				case 253:
 					MIX_00_4_1_3_1
 					MIX_01_4_1_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2289,7 +2286,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_e_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2299,7 +2296,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 251:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2308,7 +2305,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_2_1_1
 					}
 					MIX_01_4_2_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2316,7 +2313,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_10_4_7_3_e_1_1
 					}
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2326,7 +2323,7 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 239:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2335,7 +2332,7 @@ uint32_t *HQ2x::resize(
 						MIX_00_4_3_1_e_1_1
 					}
 					MIX_01_4_5_3_1
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2346,7 +2343,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_5_3_1
 					break;
 				case 127:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2354,7 +2351,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_e_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2362,7 +2359,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_01_4_1_5_2_1_1
 					}
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 					{
 						MIX_10_4
 					}
@@ -2373,7 +2370,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_8_3_1
 					break;
 				case 191:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2381,7 +2378,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_e_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2393,7 +2390,7 @@ uint32_t *HQ2x::resize(
 					MIX_11_4_7_3_1
 					break;
 				case 223:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 					{
 						MIX_00_4
 					}
@@ -2401,7 +2398,7 @@ uint32_t *HQ2x::resize(
 					{
 						MIX_00_4_3_1_2_1_1
 					}
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2410,7 +2407,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_e_1_1
 					}
 					MIX_10_4_6_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2421,7 +2418,7 @@ uint32_t *HQ2x::resize(
 					break;
 				case 247:
 					MIX_00_4_3_3_1
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 					{
 						MIX_01_4
 					}
@@ -2430,7 +2427,7 @@ uint32_t *HQ2x::resize(
 						MIX_01_4_1_5_e_1_1
 					}
 					MIX_10_4_3_3_1
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 					{
 						MIX_11_4
 					}
@@ -2440,22 +2437,22 @@ uint32_t *HQ2x::resize(
 					}
 					break;
 				case 255:
-					if (HQx::isDifferent(w[3], w[1], trY, trU, trV, trA))
+					if (is_different(w[3], w[1], trY, trU, trV, trA))
 						MIX_00_4
 					else
 						MIX_00_4_3_1_e_1_1
 
-					if (HQx::isDifferent(w[1], w[5], trY, trU, trV, trA))
+					if (is_different(w[1], w[5], trY, trU, trV, trA))
 						MIX_01_4
 					else
 						MIX_01_4_1_5_e_1_1
 
-					if (HQx::isDifferent(w[7], w[3], trY, trU, trV, trA))
+					if (is_different(w[7], w[3], trY, trU, trV, trA))
 						MIX_10_4
 					else
 						MIX_10_4_7_3_e_1_1
 
-					if (HQx::isDifferent(w[5], w[7], trY, trU, trV, trA))
+					if (is_different(w[5], w[7], trY, trU, trV, trA))
 						MIX_11_4
 					else
 						MIX_11_4_5_7_e_1_1

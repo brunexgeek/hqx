@@ -14,33 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef HQX_HQ2X_HH
-#define HQX_HQ2X_HH
-
+#ifndef HQX_HQX_HH
+#define HQX_HQX_HH
 
 #include <stdint.h>
-#include <hqx/HQx.hh>
+#include <stdbool.h>
 
-
-class HQ2x : public HQx
+struct hqx_parameters
 {
-	public:
-		HQ2x();
-
-		~HQ2x();
-
-		uint32_t *resize(
-			const uint32_t *image,
-			uint32_t width,
-			uint32_t height,
-			uint32_t *output,
-			uint32_t trY = 0x30,
-			uint32_t trU = 0x07,
-			uint32_t trV = 0x06,
-			uint32_t trA = 0x50,
-			bool wrapX = false,
-			bool wrapY = false ) const;
+	uint32_t trY;
+	uint32_t trU;
+	uint32_t trV;
+	uint32_t trA;
+	bool wrapX;
+	bool wrapY;
 };
 
+uint32_t *hqx_scale2x(
+	const uint32_t *image,
+	uint32_t width,
+	uint32_t height,
+	uint32_t *output,
+	const struct hqx_parameters *params );
 
-#endif  // HQX_HQ2X_HH
+uint32_t *hqx_scale3x(
+	const uint32_t *image,
+	uint32_t width,
+	uint32_t height,
+	uint32_t *output,
+	const struct hqx_parameters *params );
+
+#endif  // HQX_HQX_HH
