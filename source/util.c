@@ -37,14 +37,8 @@ uint32_t ARGBtoAYUV( uint32_t value )
     return (A << 24) + (Y << 16) + (U << 8) + V;
 }
 
-#if 0
-/*
- * Compare two colors in the AYUV color space and determine whether they differ enough
- * based on specified thresholds.
- *
- * Use this function for sharper images (good for cartoon style, used by DOSBOX)
- */
-bool is_different(
+#if 1
+int is_different(
 	uint32_t color1,
 	uint32_t color2,
 	uint32_t trY,
@@ -52,27 +46,15 @@ bool is_different(
 	uint32_t trV,
 	uint32_t trA )
 {
-	color1 = ARGBtoAYUV(color1);
-	color2 = ARGBtoAYUV(color2);
+	uint32_t yuv1 = ARGBtoAYUV(color1);
+	uint32_t yuv2 = ARGBtoAYUV(color2);
 
-	uint32_t value;
-
-	value = abs(int(color1 & YMASK) - int(color2 & YMASK));
-	if (value > trY) return true;
-
-	value = abs(int(color1 & UMASK) - int(color2 & UMASK));
-	if (value > trU) return true;
-
-	value = abs(int(color1 & VMASK) - int(color2 & VMASK));
-	if (value > trV) return true;
-
-	value = abs(int(color1 & AMASK) - int(color2 & AMASK));
-	if (value > trA) return true;
-
-	return false;
+	return abs((int)(yuv1 & YMASK) - (int)(yuv2 & YMASK)) > trY ||
+		   abs((int)(yuv1 & UMASK) - (int)(yuv2 & UMASK)) > trU ||
+		   abs((int)(yuv1 & VMASK) - (int)(yuv2 & VMASK)) > trV ||
+		   abs((int)(yuv1 & AMASK) - (int)(yuv2 & AMASK)) > trA;
 }
-#endif
-
+#else
 /*
  * Use this function for smoothed images (good for complex graphics)
  */
@@ -88,8 +70,9 @@ int is_different(
 	color2 = ARGBtoAYUV(color2);
 
 	return
-		abs( ((int) (color1 >> 24) & 0xFF) - ((int) (color2 >> 24) & 0xFF) ) > trA ||
-		abs( ((int) (color1 >> 16) & 0xFF) - ((int) (color2 >> 16) & 0xFF) ) > trY ||
-		abs( ((int) (color1 >> 8) & 0xFF) - ((int) (color2 >> 8) & 0xFF) ) > trU ||
-		abs( ((int) color1 & 0xFF) - ((int) (color2) & 0xFF) ) > trV;
+		abs( (int) ((color1 >> 16) & 0xFF) - (int) ((color2 >> 16) & 0xFF) ) > trY ||
+		abs( (int) ((color1 >> 8) & 0xFF) - (int) ((color2 >> 8) & 0xFF) ) > trU ||
+		abs( (int) (color1 & 0xFF) - (int) (color2 & 0xFF) ) > trV ||
+		abs( (int) (color1 >> 24) - (int) (color2 >> 24) ) > trA;
 }
+#endif

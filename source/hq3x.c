@@ -41,9 +41,9 @@ uint32_t *hqx_scale3x(
 	int previous, next;
 	uint32_t w[9];
 
-	uint32_t trA = params->trA << 24;
-	uint32_t trY = params->trY << 16;
-	uint32_t trU = params->trU << 8;
+	uint32_t trA = params->trA;
+	uint32_t trY = params->trY;
+	uint32_t trU = params->trU;
 	uint32_t trV = params->trV;
 	bool wrapX = params->wrapX;
 	bool wrapY = params->wrapY;

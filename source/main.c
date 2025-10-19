@@ -138,7 +138,7 @@ int main_loadBitmap(
 	suffix = ((*width + 3) & ~0x03) - *width;
 	ptr = *data = (uint32_t*) malloc(*width * *height * sizeof(uint32_t));
 	ptr += *width * *height;
-	for (uint32_t i = 0; i < height; i++)
+	for (uint32_t i = 0; i < *height; i++)
 	{
 		ptr -= *width;
 
@@ -190,7 +190,7 @@ int main(int argc, char **argv )
 	clock_t t = clock();
 
 	// resize the input image using the given scale factor
-	uint32_t outputSize = (width * factor) * (height * factor);
+	uint32_t outputSize = (width * factor) * (height * factor) * sizeof(uint32_t);
 	uint32_t *output = (uint32_t*) malloc(outputSize);
 	if (factor == 2)
 		hqx_scale2x(image, width, height, output, NULL);
