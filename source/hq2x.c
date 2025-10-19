@@ -19,13 +19,19 @@
 #include "macros.h"
 #include "util.h"
 
-uint32_t *hqx_scale2x(
+int hqx_scale2x(
 	const uint32_t *image,
-	uint32_t width,
-	uint32_t height,
+	int width,
+	int height,
 	uint32_t *output,
+	size_t output_size,
 	const struct hqx_parameters *params )
 {
+	if (image == NULL || width <= 0 || height <= 0 || output == NULL || output_size == 0)
+		return HQXERR_INVALID_ARGUMENT;
+	if ((size_t)(width * height) < output_size)
+		return HQXERR_OUT_OF_BOUNDS;
+
 	struct hqx_parameters params_ = {
 		.trY = 0x40,
 		.trU = 0x07,
@@ -37,7 +43,7 @@ uint32_t *hqx_scale2x(
 	if (params == NULL)
 		params = &params_;
 
-	uint32_t lineSize = width * 2;
+	int lineSize = width * 2;
 
 	int previous, next;
 	uint32_t w[9];
@@ -50,7 +56,7 @@ uint32_t *hqx_scale2x(
 	bool wrapY = params->wrapY;
 
 	// iterates between the lines
-	for (uint32_t row = 0; row < height; row++)
+	for (int row = 0; row < height; row++)
 	{
 		/*
 		 * Note: this function uses a 3x3 sliding window over the original image.
@@ -88,7 +94,7 @@ uint32_t *hqx_scale2x(
 		}
 
 		// iterates between the columns
-		for (uint32_t col = 0; col < width; col++)
+		for (int col = 0; col < width; col++)
 		{
 			w[1] = *(image + previous);
 			w[4] = *image;
@@ -2464,5 +2470,5 @@ uint32_t *hqx_scale2x(
 		output += lineSize;
 	}
 
-	return output;
+	return HQXERR_OK;
 }

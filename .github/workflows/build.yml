@@ -15,4 +15,5 @@ jobs:
       run: cmake .
     - name: compilation
       run: make
-
+    - name: test
+      run: ./example samples/prince.bmp /tmp/prince-hq2x.bmp 2

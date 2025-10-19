@@ -50,31 +50,30 @@ struct DibHeader
 /**
  * @brief Saves an Windows Bitmap image (24 BPP).
  */
-int main_saveBitmap(
+static int main_saveBitmap(
 	const uint32_t *data,
-	uint32_t width,
-	uint32_t height,
+	int width,
+	int height,
 	const char *fileName )
 {
 	struct BitmapHeader bh;
 	struct DibHeader dh;
-	uint16_t suffix;
 	uint32_t zero = 0;
 	const uint32_t *ptr;
 
 	FILE *output = fopen(fileName, "wb");
 	if (output == NULL)
-		return -1;
+		return false;
 
-	suffix = ((width + 3) & ((uint32_t)~0x03)) - width;
+	int padding = ((width + 3) & (~0x03)) - width;
 
 	dh.biSize          = sizeof(struct DibHeader);
-	dh.biWidth         = width;
-	dh.biHeight        = height;
+	dh.biWidth         = (uint32_t) width;
+	dh.biHeight        = (uint32_t) height;
 	dh.biPlanes        = 1;
 	dh.biBitCount      = 24;
 	dh.biCompression   = 0;
-	dh.biSizeImage     = (uint16_t) ( (width*3+suffix)*height );
+	dh.biSizeImage     = (uint16_t) ( (width*3+padding)*height );
 	dh.biXPelsPerMeter = 0x2E23;
 	dh.biYPelsPerMeter = dh.biXPelsPerMeter;
 	dh.biClrUsed       = 0;
@@ -88,76 +87,78 @@ int main_saveBitmap(
 	fwrite((char*) &dh, sizeof(struct DibHeader), 1, output);
 
 	ptr = data + (width * height);
-	for (uint32_t i = 0; i < height; i++)
+	for (int i = 0; i < height; i++)
 	{
 		ptr -= width;
 
-		for (uint32_t j = 0; j < width; ++j)
+		for (int j = 0; j < width; ++j)
 			fwrite( (char*) (ptr + j), 3, 1, output);
 
-		if (suffix > 0)
-			fwrite( (char*) &zero, suffix, 1, output);
+		if (padding > 0)
+			fwrite( (char*) &zero, (size_t) padding, 1, output);
 	}
 
 	fclose(output);
 
-	return 0;
+	return true;
 }
 
 
 /**
  * @brief Loads an Windows Bitmap image (24 BPP).
  */
-int main_loadBitmap(
+static int main_loadBitmap(
 	const char *fileName,
 	uint32_t **data,
-	uint16_t *width,
-	uint16_t *height )
+	int *width,
+	int *height )
 {
 	struct BitmapHeader bh;
 	struct DibHeader dh;
-	uint16_t  suffix;
+	int  padding;
 	uint32_t zero = 0;
 	uint32_t *ptr;
-	uint16_t bits;
 
 	FILE *input = fopen(fileName, "rb");
 	if (input == NULL)
-		return -1;
+		return false;
 
 	fread( (char*) &bh, sizeof(struct BitmapHeader) , 1, input);
-	if (bh.bfType != 0x4D42) return -1;
+	if (bh.bfType != 0x4D42)
+		return false;
 	fread( (char*) &dh.biSize, sizeof(uint32_t) , 1, input);
-	if (dh.biSize != 40) return -1;
+	if (dh.biSize != 40)
+		return false;
 
 	fread( (char*) &dh.biWidth, sizeof(struct DibHeader) - sizeof(uint32_t) , 1, input);
-	*width  = dh.biWidth;
-	*height = dh.biHeight;
-	if (dh.biBitCount != 24) return -1;
+	*width  = (int) dh.biWidth;
+	*height = (int) dh.biHeight;
+	if (dh.biBitCount != 24)
+		return false;
 
-	suffix = ((*width + 3) & ~0x03) - *width;
-	ptr = *data = (uint32_t*) malloc(*width * *height * sizeof(uint32_t));
+	padding = ((*width + 3) & ~0x03) - *width;
+	ptr = *data = (uint32_t*) malloc((size_t) *width * (size_t) *height * sizeof(uint32_t));
 	ptr += *width * *height;
-	for (uint32_t i = 0; i < *height; i++)
+	for (int i = 0; i < *height; i++)
 	{
 		ptr -= *width;
 
-		for (uint32_t j = 0; j < *width; ++j)
+		for (int j = 0; j < *width; ++j)
 		{
 			fread( (char*) (ptr + j), 3 , 1, input);
 			*(ptr + j) |= 0xFF000000;
 		}
 
-		if (suffix > 0)
-			fread( (char*) &zero, suffix , 1, input);
+		if (padding > 0)
+			fread( (char*) &zero, (size_t) padding , 1, input);
 	}
 
 	fclose(input);
-	return 0;
+	return true;
 }
 
 
-int main_help()
+static int main_help()
 {
 	puts("Usage: sample <input image> <output image> [ <factor> ]\n");
 	puts("Factor must be '2' for hq2x or '3' for hq3x.");
@@ -167,20 +168,20 @@ int main_help()
 
 int main(int argc, char **argv )
 {
-	uint32_t factor = 2;
+	int factor = 2;
 
 	if (argc != 3 && argc != 4) return main_help();
 	if (argc == 4)
-		factor = (uint32_t) atoi(argv[3]);
+		factor = atoi(argv[3]);
 	if (factor != 2 && factor != 3) return main_help();
 
 	const char *inputFileName = argv[1];
 	const char *outputFileName = argv[2];
 
 	// loads the input image
-	uint16_t width, height;
+	int width, height;
 	uint32_t *image = NULL;
-	if (main_loadBitmap(inputFileName, &image, &width, &height) != 0)
+	if (!main_loadBitmap(inputFileName, &image, &width, &height))
 	{
 		printf("Unable to open '%s'", inputFileName);
 		return 1;
@@ -190,18 +191,22 @@ int main(int argc, char **argv )
 	clock_t t = clock();
 
 	// resize the input image using the given scale factor
-	uint32_t outputSize = (width * factor) * (height * factor) * sizeof(uint32_t);
-	uint32_t *output = (uint32_t*) malloc(outputSize);
+	size_t output_size = (size_t) (width * factor) * (size_t) (height * factor) * sizeof(uint32_t);
+	uint32_t *output = (uint32_t*) malloc(output_size);
+	int result = 0;
 	if (factor == 2)
-		hqx_scale2x(image, width, height, output, NULL);
+		result = hqx_scale2x(image, width, height, output, output_size, NULL);
 	else
-		hqx_scale3x(image, width, height, output, NULL);
+		result = hqx_scale3x(image, width, height, output, output_size, NULL);
+	if (result != HQXERR_OK)
+		return 1;
 
 	t = clock() - t;
 	printf("Processing time: %ld ms", t / (CLOCKS_PER_SEC / 1000));
 
 	// saves the resized image
-	if ( main_saveBitmap(output, width * factor, height * factor, outputFileName) != 0 ) return 1;
+	if (!main_saveBitmap(output, width * factor, height * factor, outputFileName) != 0 )
+		return 1;
 
 	free(image);
 	free(output);

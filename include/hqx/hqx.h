@@ -17,8 +17,13 @@
 #ifndef HQX_HQX_HH
 #define HQX_HQX_HH
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#define HQXERR_OK                0
+#define HQXERR_INVALID_ARGUMENT -1
+#define HQXERR_OUT_OF_BOUNDS    -2
 
 struct hqx_parameters
 {
@@ -30,18 +35,20 @@ struct hqx_parameters
 	bool wrapY;
 };
 
-uint32_t *hqx_scale2x(
+int hqx_scale2x(
 	const uint32_t *image,
-	uint32_t width,
-	uint32_t height,
+	int width,
+	int height,
 	uint32_t *output,
+	size_t output_size,
 	const struct hqx_parameters *params );
 
-uint32_t *hqx_scale3x(
+int hqx_scale3x(
 	const uint32_t *image,
-	uint32_t width,
-	uint32_t height,
+	int width,
+	int height,
 	uint32_t *output,
+	size_t output_size,
 	const struct hqx_parameters *params );
 
 #endif  // HQX_HQX_HH
