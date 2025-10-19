@@ -29,7 +29,7 @@ int hqx_scale3x(
 {
 	if (image == NULL || width <= 0 || height <= 0 || output == NULL || output_size == 0)
 		return HQXERR_INVALID_ARGUMENT;
-	if ((size_t)(width * height) < output_size)
+	if ((size_t)(width * height) > output_size)
 		return HQXERR_OUT_OF_BOUNDS;
 
 	struct hqx_parameters params_ = {

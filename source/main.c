@@ -186,23 +186,26 @@ int main(int argc, char **argv )
 		printf("Unable to open '%s'", inputFileName);
 		return 1;
 	}
-	printf("Resizing '%s' [%dx%d] by %dx", inputFileName, width, height, factor);
+	printf("Resizing '%s' [%dx%d] by %dx\n", inputFileName, width, height, factor);
 
 	clock_t t = clock();
 
 	// resize the input image using the given scale factor
-	size_t output_size = (size_t) (width * factor) * (size_t) (height * factor) * sizeof(uint32_t);
-	uint32_t *output = (uint32_t*) malloc(output_size);
+	size_t output_size = (size_t) (width * factor * height * factor);
+	uint32_t *output = (uint32_t*) malloc(output_size * sizeof(uint32_t));
 	int result = 0;
 	if (factor == 2)
 		result = hqx_scale2x(image, width, height, output, output_size, NULL);
 	else
 		result = hqx_scale3x(image, width, height, output, output_size, NULL);
 	if (result != HQXERR_OK)
+	{
+		printf("Error during operation: %d\n", result);
 		return 1;
+	}
 
 	t = clock() - t;
-	printf("Processing time: %ld ms", t / (CLOCKS_PER_SEC / 1000));
+	printf("Processing time: %ld ms\n", t / (CLOCKS_PER_SEC / 1000));
 
 	// saves the resized image
 	if (!main_saveBitmap(output, width * factor, height * factor, outputFileName) != 0 )

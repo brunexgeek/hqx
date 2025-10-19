@@ -22,8 +22,8 @@
 #include <stdbool.h>
 
 #define HQXERR_OK                0
-#define HQXERR_INVALID_ARGUMENT -1
-#define HQXERR_OUT_OF_BOUNDS    -2
+#define HQXERR_INVALID_ARGUMENT (-1)
+#define HQXERR_OUT_OF_BOUNDS    (-2)
 
 struct hqx_parameters
 {
